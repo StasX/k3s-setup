@@ -28,6 +28,7 @@ export KUBECONFIG=~/.kube/config
 
 echo "=== Wait for node ==="
 sudo kubectl --kubeconfig=/etc/rancher/k3s/k3s.yaml wait --for=condition=Ready node --all --timeout=300s
+curl "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4" | bash
 
 # helm repo add argo https://argoproj.github.io/argo-helm
 # helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
