@@ -1,14 +1,8 @@
 #!/bin/bash
 set -e
 
-echo "=== Update system ==="
-sudo dnf update -y || sudo yum update -y
-
-echo "=== Install basic tools ==="
-sudo dnf install -y curl wget git tar gzip || sudo yum install -y curl wget git tar gzip
-
 echo "=== Install k3s without Traefik ==="
-curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --disable traefik" sh -
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server" sh -
 
 echo "=== Prepare kubeconfig ==="
 mkdir -p ~/.kube
@@ -23,19 +17,10 @@ echo "=== Install Helm ==="
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 echo "=== Add Helm repos ==="
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo add argo https://argoproj.github.io/argo-helm
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
-
-echo "=== Install ingress-nginx ==="
-helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
-  -n ingress-nginx \
-  --create-namespace \
-  --set controller.service.type=NodePort \
-  --set controller.service.nodePorts.http=30080 \
-  --set controller.service.nodePorts.https=30443
 
 echo "=== Install ArgoCD ==="
 helm upgrade --install argocd argo/argo-cd \
