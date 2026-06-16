@@ -1,15 +1,31 @@
-curl -sfL https://get.k3s.io | sh -
+#!/bin/bash
+set -e
 
-until systemctl is-active --quiet k3s; do
+# 1. Install prerequisites required by Amazon Linux
+echo "Installing prerequisites..."
+sudo dnf install -y iptables container-selinux 2>/dev/null || sudo yum install -y iptables
+
+# 2. Run the K3s installer with sudo privileges 
+# We add --write-kubeconfig-mode 644 so your local user can read it without sudo issues later
+echo "Installing K3s..."
+curl -sfL https://get.k3s.io | sudo sh -s - --write-kubeconfig-mode 644
+
+# 3. Wait for the systemd service to become active
+echo "Waiting for k3s service to spin up..."
+until sudo systemctl is-active --quiet k3s; do
     echo "Waiting for k3s service..."
     sleep 2
 done
 
+# 4. Set up kubeconfig for your local user
 mkdir -p ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sudo chown $(id -u):$(id -g) ~/.kube/config
 export KUBECONFIG=~/.kube/config
+echo "export KUBECONFIG=~/.kube/config" >> ~/.bashrc
 
+# 5. Wait for the node to be fully ready
+echo "Waiting for cluster nodes to be ready..."
 kubectl wait --for=condition=Ready node --all --timeout=300s
 
 # helm repo add argo https://argoproj.github.io/argo-helm
