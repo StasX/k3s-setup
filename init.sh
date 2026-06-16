@@ -1,6 +1,3 @@
-#!/bin/bash
-set -e  # Exit on error
-
 echo "=== Install k3s with built-in Traefik ==="
 curl -sfL https://get.k3s.io | sh -
 
