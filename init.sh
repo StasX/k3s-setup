@@ -28,8 +28,6 @@ helm upgrade --install argocd argo/argo-cd \
   -n argocd \
   --create-namespace
 
-# kubectl wait --for=condition=Available deployment/argocd-server -n argocd --timeout=300s
-
 helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
   -n monitoring \
   --create-namespace \
@@ -39,20 +37,14 @@ helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheu
   --set prometheus.service.type=NodePort \
   --set prometheus.service.nodePort=30090
 
-
 helm upgrade --install loki grafana/loki-stack \
   -n monitoring \
   --create-namespace \
   --set promtail.enabled=true \
   --set grafana.enabled=false
 
-# kubectl wait --namespace monitoring --for=condition=Ready pods --all --timeout=300s
-
-# SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-# cd "$SCRIPT_DIR"
-
-# kubectl apply -f ./projects/aws-monitor-project.yaml
-# kubectl apply -f ./applicationsets/aws-monitor.yaml
+kubectl apply -f ./projects/aws-monitor-project.yaml
+kubectl apply -f ./applicationsets/aws-monitor.yaml
 
 
 # nohup kubectl port-forward svc/argocd-server -n argocd 8080:443 --address 0.0.0.0 >/tmp/argocd-portforward.log 2>&1 </dev/null &
