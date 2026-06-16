@@ -23,7 +23,6 @@ helm upgrade --install argocd argo/argo-cd \
   -n argocd \
   --create-namespace \
   --set server.service.type=NodePort \
-  --set server.service.nodePortHttp=30080 \
   --set server.service.nodePortHttps=30443
 
 helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
