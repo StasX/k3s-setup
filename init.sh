@@ -6,10 +6,9 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server" sh -
 mkdir -p ~/.kube
 cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 chown $(id -u):$(id -g) ~/.kube/config
-# export KUBECONFIG=~/.kube/config
+export KUBECONFIG=~/.kube/config
 
-
-# kubectl wait --for=condition=Ready node --all --timeout=300s
+kubectl wait --for=condition=Ready node --all --timeout=300s
 
 # curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
