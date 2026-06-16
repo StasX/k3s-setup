@@ -11,22 +11,23 @@ echo "Installing K3s..."
 curl -sfL https://get.k3s.io | sudo sh -s - --write-kubeconfig-mode 644
 
 # 3. Wait for the systemd service to become active
-echo "Waiting for k3s service to spin up..."
-until sudo systemctl is-active --quiet k3s; do
-    echo "Waiting for k3s service..."
+echo "=== Install k3s with built-in Traefik ==="
+# Removed --disable traefik (INSTALL_K3S_EXEC="server" does this by default)
+curl -sfL https://get.k3s.io | sh -
+
+echo "=== Waiting for K3s service to start ==="
+until systemctl is-active --quiet k3s; do
     sleep 2
 done
 
-# 4. Set up kubeconfig for your local user
+echo "=== Prepare kubeconfig ==="
 mkdir -p ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sudo chown $(id -u):$(id -g) ~/.kube/config
 export KUBECONFIG=~/.kube/config
-echo "export KUBECONFIG=~/.kube/config" >> ~/.bashrc
 
-# 5. Wait for the node to be fully ready
-echo "Waiting for cluster nodes to be ready..."
-kubectl wait --for=condition=Ready node --all --timeout=300s
+echo "=== Wait for node ==="
+sudo kubectl --kubeconfig=/etc/rancher/k3s/k3s.yaml wait --for=condition=Ready node --all --timeout=300s
 
 # helm repo add argo https://argoproj.github.io/argo-helm
 # helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
