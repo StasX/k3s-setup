@@ -30,32 +30,32 @@ echo "=== Wait for node ==="
 sudo kubectl --kubeconfig=/etc/rancher/k3s/k3s.yaml wait --for=condition=Ready node --all --timeout=300s
 curl "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4" | bash
 
-# helm repo add argo https://argoproj.github.io/argo-helm
-# helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-# helm repo add grafana https://grafana.github.io/helm-charts
-# helm repo update
+helm repo add argo https://argoproj.github.io/argo-helm
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
 
-# helm upgrade --install argocd argo/argo-cd \
-#   -n argocd \
-#   --create-namespace
+helm upgrade --install argocd argo/argo-cd \
+  -n argocd \
+  --create-namespace
 
 # kubectl wait --for=condition=Available deployment/argocd-server -n argocd --timeout=300s
 
-# helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
-#   -n monitoring \
-#   --create-namespace \
-#   --set grafana.adminPassword='admin123' \
-#   --set grafana.service.type=NodePort \
-#   --set grafana.service.nodePort=30300 \
-#   --set prometheus.service.type=NodePort \
-#   --set prometheus.service.nodePort=30090
+helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+  -n monitoring \
+  --create-namespace \
+  --set grafana.adminPassword='admin123' \
+  --set grafana.service.type=NodePort \
+  --set grafana.service.nodePort=30300 \
+  --set prometheus.service.type=NodePort \
+  --set prometheus.service.nodePort=30090
 
 
-# helm upgrade --install loki grafana/loki-stack \
-#   -n monitoring \
-#   --create-namespace \
-#   --set promtail.enabled=true \
-#   --set grafana.enabled=false
+helm upgrade --install loki grafana/loki-stack \
+  -n monitoring \
+  --create-namespace \
+  --set promtail.enabled=true \
+  --set grafana.enabled=false
 
 # kubectl wait --namespace monitoring --for=condition=Ready pods --all --timeout=300s
 
