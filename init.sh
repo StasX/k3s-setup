@@ -2,6 +2,7 @@
 set -e
 
 curl -sfL https://get.k3s.io | sh -
+
 until systemctl is-active --quiet k3s; do
     sleep 2
 done
