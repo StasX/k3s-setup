@@ -8,7 +8,8 @@ cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 chown $(id -u):$(id -g) ~/.kube/config
 export KUBECONFIG=~/.kube/config
 
-kubectl wait --for=condition=Ready node --all --timeout=300s
+
+# kubectl wait --for=condition=Ready node --all --timeout=300s
 
 # curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
