@@ -27,6 +27,7 @@ helm upgrade --install argocd argo/argo-cd \
   -n argocd \
   --create-namespace
 
+# Wait for ArgoCD to be fully ready
 kubectl wait --for=condition=Available deployment/argocd-server -n argocd --timeout=300s
 
 echo "=== Install Prometheus + Grafana ==="
@@ -46,34 +47,28 @@ helm upgrade --install loki grafana/loki-stack \
   --set promtail.enabled=true \
   --set grafana.enabled=false
 
+echo "=== Wait for Monitoring Stack to be Ready ==="
+# Crucial: Prevent port-forwarding from failing due to missing active endpoints
+kubectl wait --namespace monitoring --for=condition=Ready pods --all --timeout=300s
 
+# Get the absolute path of the git repo directory to ensure kubectl apply finds the files
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
 
-
-
-
-nohup kubectl port-forward svc/argocd-server \
-  -n argocd \
-  8080:443 \
-  --address 0.0.0.0 \
-  >/tmp/argocd-portforward.log 2>&1 &
-
-nohup kubectl port-forward svc/kube-prometheus-stack-grafana \
-  -n monitoring \
-  3000:80 \
-  --address 0.0.0.0 \
-  >/tmp/grafana-portforward.log 2>&1 &
-
-nohup kubectl port-forward svc/kube-prometheus-stack-prometheus \
-  -n monitoring \
-  9090:9090 \
-  --address 0.0.0.0 \
-  >/tmp/prometheus-portforward.log 2>&1 &
-
-nohup kubectl port-forward svc/loki \
-  -n monitoring \
-  3100:3100 \
-  --address 0.0.0.0 \
-  >/tmp/loki-portforward.log 2>&1 &
-
+echo "=== Apply ArgoCD Applications ==="
 kubectl apply -f ./projects/aws-monitor-project.yaml
 kubectl apply -f ./applicationsets/aws-monitor.yaml
+
+echo "=== Starting Port Forwards ==="
+# Note the '</dev/null' at the end of each line. 
+# This prevents the background process from holding the SSH session open.
+
+nohup kubectl port-forward svc/argocd-server -n argocd 8080:443 --address 0.0.0.0 >/tmp/argocd-portforward.log 2>&1 </dev/null &
+
+nohup kubectl port-forward svc/kube-prometheus-stack-grafana -n monitoring 3000:80 --address 0.0.0.0 >/tmp/grafana-portforward.log 2>&1 </dev/null &
+
+nohup kubectl port-forward svc/kube-prometheus-stack-prometheus -n monitoring 9090:9090 --address 0.0.0.0 >/tmp/prometheus-portforward.log 2>&1 </dev/null &
+
+nohup kubectl port-forward svc/loki -n monitoring 3100:3100 --address 0.0.0.0 >/tmp/loki-portforward.log 2>&1 </dev/null &
+
+echo "=== Script Finished Successfully ==="
