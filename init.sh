@@ -14,9 +14,6 @@ export KUBECONFIG=~/.kube/config
 
 sudo kubectl --kubeconfig=/etc/rancher/k3s/k3s.yaml wait --for=condition=Ready node --all --timeout=300s
 
-curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4
-sudo chmod +x get_helm.sh
-sudo bash ./get_helm.sh
 
 # helm repo add argo https://argoproj.github.io/argo-helm
 # helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
