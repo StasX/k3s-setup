@@ -6,17 +6,17 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server" sh -
 mkdir -p ~/.kube
 cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 chown $(id -u):$(id -g) ~/.kube/config
-export KUBECONFIG=~/.kube/config
+# export KUBECONFIG=~/.kube/config
 
 
-kubectl wait --for=condition=Ready node --all --timeout=300s
+# kubectl wait --for=condition=Ready node --all --timeout=300s
 
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+# curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
-helm repo add argo https://argoproj.github.io/argo-helm
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm repo add grafana https://grafana.github.io/helm-charts
-helm repo update
+# helm repo add argo https://argoproj.github.io/argo-helm
+# helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+# helm repo add grafana https://grafana.github.io/helm-charts
+# helm repo update
 
 # helm upgrade --install argocd argo/argo-cd \
 #   -n argocd \
