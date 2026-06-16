@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: aws-monitor-project
+  namespace: argocd
+spec:
+  description: AWS Monitor
+  sourceRepos:
+    - https://github.com/StasX/argo-gitops.git
+  destinations:
+    - namespace: '*'
+      server: https://kubernetes.default.svc
+  sourceNamespaces:
+    - '*'

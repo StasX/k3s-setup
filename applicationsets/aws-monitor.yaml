@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: aws-monitor-applicationset
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/StasX/argo-gitops.git
+        revision: main
+        directories:
+          - path: manifests/aws-monitor/dev
+          - path: manifests/aws-monitor/qa
+          - path: manifests/aws-monitor/prod
+
+  template:
+    metadata:
+      name: 'aws-monitor-{{path.basename}}'
+    spec:
+      project: aws-monitor-project
+
+      source:
+        repoURL: https://github.com/StasX/argo-gitops.git
+        targetRevision: main
+        path: '{{path}}'
+
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{path.basename}}'
+
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
