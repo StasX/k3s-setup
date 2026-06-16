@@ -1,20 +1,31 @@
+#!/bin/bash
+set -e  # Exit on error
+
 echo "=== Install k3s with built-in Traefik ==="
-# Removed --disable traefik (INSTALL_K3S_EXEC="server" does this by default)
-# curl -sfL https://get.k3s.io | sh -
+curl -sfL https://get.k3s.io | sh -
 
-# echo "=== Waiting for K3s service to start ==="
-# until systemctl is-active --quiet k3s; do
-#     sleep 2
-# done
+echo "=== Waiting for K3s service to start ==="
+until systemctl is-active --quiet k3s; do
+    echo "Waiting for k3s service..."
+    sleep 2
+done
 
-# echo "=== Prepare kubeconfig ==="
-# mkdir -p ~/.kube
-# sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
-# sudo chown $(id -u):$(id -g) ~/.kube/config
-# export KUBECONFIG=~/.kube/config
+echo "=== Prepare kubeconfig ==="
+mkdir -p ~/.kube
+sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+sudo chown $(id -u):$(id -g) ~/.kube/config
+export KUBECONFIG=~/.kube/config
 
-# echo "=== Wait for node ==="
-# sudo kubectl --kubeconfig=/etc/rancher/k3s/k3s.yaml wait --for=condition=Ready node --all --timeout=300s
+echo "=== Waiting for nodes to be ready ==="
+kubectl wait --for=condition=Ready node --all --timeout=300s
+
+echo "=== Installing Helm ==="
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+
+# Rest of your script with error checking...
+
 
 # helm repo add argo https://argoproj.github.io/argo-helm
 # helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
