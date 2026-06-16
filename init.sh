@@ -1,32 +1,21 @@
 #!/bin/bash
 set -e
 
-# 1. Install prerequisites required by Amazon Linux
-echo "Installing prerequisites..."
 sudo dnf install -y iptables container-selinux 2>/dev/null || sudo yum install -y iptables
 
-# 2. Run the K3s installer with sudo privileges 
-# We add --write-kubeconfig-mode 644 so your local user can read it without sudo issues later
-echo "Installing K3s..."
 curl -sfL https://get.k3s.io | sudo sh -s - --write-kubeconfig-mode 644
 
-# 3. Wait for the systemd service to become active
-echo "=== Install k3s with built-in Traefik ==="
-# Removed --disable traefik (INSTALL_K3S_EXEC="server" does this by default)
 curl -sfL https://get.k3s.io | sh -
 
-echo "=== Waiting for K3s service to start ==="
 until systemctl is-active --quiet k3s; do
     sleep 2
 done
 
-echo "=== Prepare kubeconfig ==="
 mkdir -p ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sudo chown $(id -u):$(id -g) ~/.kube/config
 export KUBECONFIG=~/.kube/config
 
-echo "=== Wait for node ==="
 sudo kubectl --kubeconfig=/etc/rancher/k3s/k3s.yaml wait --for=condition=Ready node --all --timeout=300s
 curl "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4" | bash
 
